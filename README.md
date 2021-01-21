@@ -1,12 +1,31 @@
 # Blitz App Adblock
 
-A simple and quick patcher that blocks ads/trackers on the Blitz.gg desktop application.
+A simple and quick patcher that blocks ads/trackers on the Blitz.gg desktop application (supports macOS and Windows).
+
+If Blitz.gg updates, you will need to rerun the program to reapply the patch. 
+
+If there are issues after an update, [submit a Github issue](https://github.com/lulzsun/blitz-app-adblock/issues/new) and optionally attach the following log file: 
+
+`%appdata%\Blitz\app.log`
+
+You can uninstall the adblocker by uninstalling Blitz.
+
+## Install
 
 Download latest release [here](https://github.com/lulzsun/blitz-app-adblock/releases/latest).
 
-If Blitz.gg updates, rerun the program to reapply the patch. If there are issues after update, [submit a Github issue](https://github.com/lulzsun/blitz-app-adblock/issues/new) and attach the following log file: `%appdata%/Blitz/app.log`.
+Extract .zip and open `blitz-app-adblock` executable.
 
-You can uninstall the adblocker by uninstalling Blitz.
+## Install & Build (Developer)
+
+Built for Node 14.15.4 (recommended).
+
+```bash
+$ npm install
+$ npm run build
+```
+
+Builds standalone to `.\build\` using [pkg](https://github.com/vercel/pkg)
 
 ## Optional Features
 
@@ -21,7 +40,9 @@ Using this is against Blitz.gg's terms of services. I am not responsible for wha
 
 ## Special thanks to
 
-[asar.net - .net asar archive extractor](https://github.com/Jiiks/asar.net)
+[asar - electron archive](https://github.com/electron/asar)
+
+[pkg - single-command Node.js binary compiler](https://github.com/vercel/pkg)
 
 [Easylist - filters for ads/trackers](https://easylist.to/pages/about.html)
 
