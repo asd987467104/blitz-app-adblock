@@ -3,47 +3,60 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 
-async function downloadFile(url, filePath) {
-  const proto = !url.charAt(4).localeCompare('s') ? https : http;
+async function downloadFile(url, filePath) {    
+    const proto = !url.charAt(4).localeCompare('s') ? https : http;
 
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(filePath);
-    let fileInfo = null;
+    return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(filePath);
+        let fileInfo = null;
 
-    const request = proto.get(url, response => {
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
-        return;
-      }
+        const request = proto.get(url, response => {
+            if (response.statusCode !== 200) {
+                reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
+                return;
+            }
 
-      fileInfo = {
-        mime: response.headers['content-type'],
-        size: parseInt(response.headers['content-length'], 10),
-      };
+            fileInfo = {
+                mime: response.headers['content-type'],
+                size: parseInt(response.headers['content-length'], 10),
+            };
 
-      response.pipe(file);
+            response.pipe(file);
+        });
+
+        // The destination stream is ended by the time it's called
+        file.on('finish', () => resolve(fileInfo));
+
+        request.on('error', err => {
+            fs.unlink(filePath, () => reject(err));
+        });
+
+        file.on('error', err => {
+            fs.unlink(filePath, () => reject(err));
+        });
+
+        request.end();
     });
-
-    // The destination stream is ended by the time it's called
-    file.on('finish', () => resolve(fileInfo));
-
-    request.on('error', err => {
-      fs.unlink(filePath, () => reject(err));
-    });
-
-    file.on('error', err => {
-      fs.unlink(filePath, () => reject(err));
-    });
-
-    request.end();
-  });
 }
 
-function modifyFileAtLine(data, filePath, line) {
+function modifyFileAtLine(data, filePath, line, compare=-1) {
     var file = fs.readFileSync(filePath).toString().split("\n");
-    file.splice(line-1, 1, data);
-    var text = file.join("\n");
 
+    if(compare != -1) {
+        if(!(data === file[line-1]) && !(compare === file[line-1])) {
+            throw new Error(
+                `Current Blitz version caused patch comparison check to fail. Look for a new patcher release or create a new issue on Github!
+                \n\n
+                Finding:\n
+                \t'${file[line-1]}'\n
+                Instead of:
+                \t'${compare}'`);
+        }
+    }
+
+    file.splice(line-1, 1, data);
+    var text = file.join('\n');
+    
     fs.writeFileSync(filePath, text);
     console.log(`${filePath} => Writing to line ${line}: ${data}`);
 }

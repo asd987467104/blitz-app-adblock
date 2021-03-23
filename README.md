@@ -1,20 +1,30 @@
 # Blitz App Adblock
 
-A simple and quick patcher that blocks ads/trackers on the Blitz.gg desktop application (supports macOS and Windows).
+A simple and quick patcher that blocks ads/trackers on the Blitz.gg desktop application (supports Mac and Windows).
 
 If Blitz.gg updates, you will need to rerun the program to reapply the patch. 
 
-If there are issues after an update, [submit a Github issue](https://github.com/lulzsun/blitz-app-adblock/issues/new) and optionally attach the following log file: 
-
-`%appdata%\Blitz\app.log`
+If there are issues after an update, [submit a Github issue](https://github.com/lulzsun/blitz-app-adblock/issues/new) and attach useful information such as error messages.
 
 You can uninstall the adblocker by uninstalling Blitz.
 
 ## Install
+Download latest release [here](https://github.com/lulzsun/blitz-app-adblock/releases/latest). Make sure to have the Blitz app completely closed before beginning.
 
-Download latest release [here](https://github.com/lulzsun/blitz-app-adblock/releases/latest).
+### Windows
+1. Extract .zip
+2. Run `blitz-app-adblock.exe`
 
-Extract .zip and open `blitz-app-adblock` executable.
+If issues occur, try to run executable as administrator.
+
+### Mac
+1. Extract .zip
+2. Open terminal and enter the following commands
+```bash
+$ cd "insert directory of blitz-app-adblock-mac"
+$ chdome +x blitz-app-adblock-mac
+$ ./blitz-app-adblock-mac
+```
 
 ## Install & Build (Developer)
 
@@ -25,7 +35,7 @@ $ npm install
 $ npm run build
 ```
 
-Builds standalone to `.\build\` using [pkg](https://github.com/vercel/pkg)
+Builds standalone to `.\build\` using [pkg](https://github.com/vercel/pkg).
 
 ## Optional Features
 

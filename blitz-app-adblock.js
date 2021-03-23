@@ -1,4 +1,6 @@
 const fs = require('fs');
+const os = require('os');
+const ps = require('ps4js');
 const asar = require('asar');
 const path = require('path');
 
@@ -12,10 +14,17 @@ var autoGuest = false;
 async function start() {
     try {
         argumentsHandler();
+        await killBlitz();
         
         // mac os app path
         if (process.platform === 'darwin') {
-            appPath = '/Applications/Blitz.app/Contents/Resources';
+            var dir = os.homedir() + '/Applications/Blitz.app/Contents/Resources';
+            if(fs.existsSync(dir)) {
+                appPath = dir
+            }
+            else {
+                appPath = '/Applications/Blitz.app/Contents/Resources';
+            }
         }
         // windows app path
         else if (process.platform === 'win32') {
@@ -27,7 +36,7 @@ async function start() {
         }
         else {
             console.log('Extracting app.asar...');
-            await asar.extractAll(`${appPath}/app.asar`, `${appPath}/app/`);
+            asar.extractAll(`${appPath}/app.asar`, `${appPath}/app/`);
         
             console.log('Downloading ad & tracking filters...');
             await io.downloadFile('https://easylist.to/easylist/easylist.txt', `${appPath}/app/src/easylist.txt`);
@@ -44,12 +53,12 @@ async function start() {
             else io.copyFile('./build/adblocker.umd.min.js', `${appPath}/app/src/adblocker.umd.min.js`)
     
             // start writing our payload to createWindow.js
-            io.modifyFileAtLine(js.filterEngine, `${appPath}/app/src/createWindow.js`, 119);
-            io.modifyFileAtLine('session: true,', `${appPath}/app/src/createWindow.js`, 106);
+            io.modifyFileAtLine(js.filterEngine, `${appPath}/app/src/createWindow.js`, 118, '');
+            io.modifyFileAtLine('session: true,', `${appPath}/app/src/createWindow.js`, 105, '');
     
             // optional features
-            if (noUpdate)  io.ModifyFileAtLine('if (false) {', `${appPath}/app/src/index.js`, 267);
-            if (autoGuest) io.ModifyFileAtLine(js.autoGuest, `${appPath}/app/src/preload.js`, 18);
+            if (noUpdate)  io.modifyFileAtLine('', `${appPath}/app/src/autoUpdater/index.js`, 46);
+            if (autoGuest) io.modifyFileAtLine(js.autoGuest, `${appPath}/app/src/preload.js`, 18);
     
             // repack
             console.log('Repacking app.asar...');
@@ -63,6 +72,7 @@ async function start() {
         }
     }
     catch (error) {
+        console.log('\n');
         console.log(error);
     }
 
@@ -71,6 +81,32 @@ async function start() {
         .createInterface(process.stdin, process.stdout)
         .question('Press ENTER to quit...', function(){
             process.exit();
+    });
+}
+
+function killBlitz() {
+    console.log('Checking for Blitz...');
+    return new Promise(resolve => {
+        var pid;
+
+        ps.list(function(err, results) {
+            if (err)
+                throw new Error( err );
+
+            results.forEach(process => {
+                if(process.command.startsWith('Blitz')) {
+                    if(!pid)
+                        console.log('Closing out Blitz...');
+                    pid = process.pid;
+
+                    ps.kill(pid, function(err, stdout) {
+                        if (err)
+                            throw new Error(err);
+                    });
+                }
+            });
+            resolve();
+        });
     });
 }
 
